@@ -1,0 +1,13 @@
+{
+  "domain": "kostal_plenticore_modbus",
+  "name": "Kostal Plenticore Modbus",
+  "codeowners": ["@crunka3"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/CrunkA3/ha_kostal_plenticore_modbus",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/CrunkA3/ha_kostal_plenticore_modbus/issues",
+  "loggers": ["pymodbus"],
+  "requirements": ["pymodbus==3.7.4"],
+  "version": "0.1.0"
+}
