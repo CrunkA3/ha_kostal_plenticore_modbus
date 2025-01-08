@@ -1,0 +1,115 @@
+"""Coordinators for willow."""
+from __future__ import annotations
+
+from datetime import timedelta
+from pymodbus.client import ModbusTcpClient
+from pymodbus.exceptions import ModbusException
+import logging
+
+from homeassistant.helpers.entity import Entity
+from homeassistant.const import PERCENTAGE
+
+from homeassistant.core import callback
+from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
+
+from .const import DOMAIN, CONF_IP_ADDRESS, NAME, MANUFACTURER, MODEL
+
+_LOGGER = logging.getLogger(__name__)
+
+class InverterCoordinator(DataUpdateCoordinator):
+    """Inverter coordinator.
+
+    The CoordinatorEntity class provides:
+        should_poll
+        async_update
+        async_added_to_hass
+        available
+    """
+
+
+    def __init__(self, hass, entry, ip_address):
+        """Initialize coordinator."""
+        super().__init__(
+            hass,
+            _LOGGER,
+            # Name of the data. For logging purposes.
+            name=DOMAIN,
+            # Polling interval. Will only be polled if there are subscribers.
+            update_interval=timedelta(seconds=15),
+        )
+
+        self._hass = hass
+        self._entry = entry
+        self._ip_address = ip_address
+
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN].setdefault(entry.entry_id, {
+                    "name": entry.title,
+                    "ip": ip_address,
+                    "model": MODEL,
+                    "status": "OFFLINE"
+                })
+
+    @property
+    def device_info(self):
+        """Return information to link this entity with the correct device."""
+        return {
+            "identifiers": {
+                (DOMAIN, self._entry.entry_id)
+                },
+            "name": NAME,
+            "manufacturer": MANUFACTURER,
+            "model": MODEL
+        }
+
+    async def _async_update_data(self):
+        """Fetch data from API endpoint.
+
+        This is the place to pre-process the data to lookup tables
+        so entities can quickly look up their data.
+        """
+        _LOGGER.warn("InverterCoordinator _async_update_data")
+
+        client = ModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
+
+        try:
+            connection = client.connect()
+            if connection:
+                
+                data = {}
+                # batteryWorkCapacity
+                result = client.read_holding_registers(1068, count=2, slave=71)
+                if not result.isError():
+                    #result_float = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.FLOAT32, word_order="little")
+                    result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
+                    data["batteryWorkCapacity"] = result_float
+                else:
+                    _LOGGER.error("Error reading registers")
+
+                # Minimum/Maximum SOC
+                result = client.read_holding_registers(1042, count=4, slave=71)
+                if not result.isError():
+                    #result_float = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.FLOAT32, word_order="little")
+                    min_soc = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
+                    max_soc = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
+                    data["minSoc"] = min_soc
+                    data["maxSoc"] = max_soc
+                else:
+                    _LOGGER.error("Error reading registers")
+            else:
+                _LOGGER.error("Connection failed")
+
+        except ModbusException as e:
+            _LOGGER.error(f"Modbus error: {e}")
+
+        finally:
+            client.close()
+
+        return data
+
+        #        #raise UpdateFailed(f"Error communicating with socket: {e}")
