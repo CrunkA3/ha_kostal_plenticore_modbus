@@ -76,19 +76,20 @@ class InverterCoordinator(DataUpdateCoordinator):
 
         client = AsyncModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
 
+        data = { 
+            "scaleFactor": 1,
+            "batteryWorkCapacity": 0,
+            "maxChargePower": 0,
+            "maxDischargePower": 0,
+            "minSoc": 5,
+            "maxSoc": 100
+        }
+
+
         try:
             connection = await client.connect()
             if connection:
-                
-                data = { 
-                    "scaleFactor": 1,
-                    "batteryWorkCapacity": 0,
-                    "maxChargePower": 0,
-                    "maxDischargePower": 0,
-                    "minSoc": 5,
-                    "maxSoc": 100
-                }
-                
+
                 # Power Scale Factor
                 result = await client.read_holding_registers(1025, count=1, slave=71)
                 if not result.isError():
@@ -97,8 +98,9 @@ class InverterCoordinator(DataUpdateCoordinator):
                     data["scaleFactor"] = power_scale_factor
                 else:
                     _LOGGER.error("Error reading registers")
-                
+
                 # batteryWorkCapacity
+                result = await client.read_holding_registers(1068, count=2, slave=71)
                 if not result.isError():
                     result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
                     data["batteryWorkCapacity"] = result_float
