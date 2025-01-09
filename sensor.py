@@ -36,11 +36,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
     ip_address = entry.data[CONF_IP_ADDRESS]
 
     #Add mowing info sensors
-    inverter_coordinator = InverterCoordinator(hass, entry, ip_address)
+    inverter_coordinator = entry.runtime_data.inverter_coordinator
     async_add_entities([
         BatteryWorkCapacitySensor(inverter_coordinator, ip_address),
-        MinSocSensor(inverter_coordinator, ip_address),
-        MaxSocSensor(inverter_coordinator, ip_address)
+        PowerScaleFactorSensor(inverter_coordinator, ip_address),
+        MaxSocSensor(inverter_coordinator, ip_address),
+        MaxChargePowerSensor(inverter_coordinator, ip_address),
+        MaxDischargePowerSensor(inverter_coordinator, ip_address)
         ])
 
 
@@ -82,7 +84,6 @@ class BatteryWorkCapacitySensor(CoordinatorEntity, SensorEntity):
 
     @property
     def state(self):
-        _LOGGER.warn(f"data is '{self.coordinator.data}'")
         return self.coordinator.data["batteryWorkCapacity"]
         #return 0
 
@@ -100,13 +101,11 @@ class BatteryWorkCapacitySensor(CoordinatorEntity, SensorEntity):
 
 
 
-class MinSocSensor(CoordinatorEntity, SensorEntity):
-    """Battery Minimum SOC sensor."""
+class PowerScaleFactorSensor(CoordinatorEntity, SensorEntity):
+    """ Power Scale Factor sensor."""
     
-    _attr_icon = "mdi:battery-10"
-    #_attr_device_class = "battery"
+    _attr_icon = "mdi:function-variant"
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_unit_of_measurement = "%"
     _attr_suggested_display_precision = 0
 
     def __init__(self, coordinator, ip_address):
@@ -114,8 +113,8 @@ class MinSocSensor(CoordinatorEntity, SensorEntity):
 
         self._ip_address = ip_address  # Initialize the IP address
         self._state = None
-        self._name = "Minimum SOC"
-        self._unique_id = f"min_soc_sensor_{ip_address.replace('.', '_')}"
+        self._name = "Power Scale Factor"
+        self._unique_id = f"power_scale_factor_{ip_address.replace('.', '_')}"
         self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
 
     @property
@@ -138,8 +137,7 @@ class MinSocSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def state(self):
-        _LOGGER.warn(f"data is '{self.coordinator.data}'")
-        return self.coordinator.data["minSoc"]
+        return self.coordinator.data["scaleFactor"]
         #return 0
 
 
@@ -155,11 +153,12 @@ class MinSocSensor(CoordinatorEntity, SensorEntity):
         await self.coordinator.async_request_refresh()
 
 
+
+
 class MaxSocSensor(CoordinatorEntity, SensorEntity):
     """Battery Maximum SOC sensor."""
     
     _attr_icon = "mdi:battery-90"
-    #_attr_device_class = "battery"
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = "%"
     _attr_suggested_display_precision = 0
@@ -193,7 +192,6 @@ class MaxSocSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def state(self):
-        _LOGGER.warn(f"data is '{self.coordinator.data}'")
         return self.coordinator.data["maxSoc"]
         #return 0
 
@@ -207,4 +205,116 @@ class MaxSocSensor(CoordinatorEntity, SensorEntity):
     async def async_update(self):
         """Synchronize state"""
         _LOGGER.info("async update")
+        await self.coordinator.async_request_refresh()
+
+
+
+
+class MaxChargePowerSensor(CoordinatorEntity, SensorEntity):
+    """Battery Maximum charge power limit sensor."""
+    
+    _attr_icon = "mdi:battery-charging-90"
+    _attr_device_class = "power"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "W"
+    _attr_suggested_display_precision = 0
+
+    def __init__(self, coordinator, ip_address):
+        super().__init__(coordinator, context=0)
+
+        self._ip_address = ip_address  # Initialize the IP address
+        self._state = None
+        self._name = "Maximum Charge Power"
+        self._unique_id = f"max_charge_power_sensor_{ip_address.replace('.', '_')}"
+        self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def unique_id(self):
+        return self._unique_id
+
+    @property
+    def device_info(self):
+        """Get information about this device."""
+        return {
+            "identifiers": {(DOMAIN, self._device_id)},
+            "name": NAME,
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    @property
+    def state(self):
+        return self.coordinator.data["maxChargePower"]
+        #return 0
+
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self.async_write_ha_state()
+
+
+    async def async_update(self):
+        """Synchronize state"""
+        await self.coordinator.async_request_refresh()
+
+
+
+
+
+
+class MaxDischargePowerSensor(CoordinatorEntity, SensorEntity):
+    """Battery Maximum discharge power limit sensor."""
+    
+    _attr_icon = "mdi:battery-charging-10"
+    _attr_device_class = "power"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "W"
+    _attr_suggested_display_precision = 0
+
+    def __init__(self, coordinator, ip_address):
+        super().__init__(coordinator, context=0)
+
+        self._ip_address = ip_address  # Initialize the IP address
+        self._state = None
+        self._name = "Maximum Discharge Power"
+        self._unique_id = f"max_discharge_power_sensor_{ip_address.replace('.', '_')}"
+        self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def unique_id(self):
+        return self._unique_id
+
+    @property
+    def device_info(self):
+        """Get information about this device."""
+        return {
+            "identifiers": {(DOMAIN, self._device_id)},
+            "name": NAME,
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    @property
+    def state(self):
+        return self.coordinator.data["maxDischargePower"]
+        #return 0
+
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self.async_write_ha_state()
+
+
+    async def async_update(self):
+        """Synchronize state"""
         await self.coordinator.async_request_refresh()

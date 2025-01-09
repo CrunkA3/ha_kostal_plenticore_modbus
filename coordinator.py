@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from pymodbus.client import ModbusTcpClient
+from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 import logging
 
@@ -73,30 +73,48 @@ class InverterCoordinator(DataUpdateCoordinator):
         This is the place to pre-process the data to lookup tables
         so entities can quickly look up their data.
         """
-        _LOGGER.warn("InverterCoordinator _async_update_data")
 
-        client = ModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
+        client = AsyncModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
 
         try:
-            connection = client.connect()
+            connection = await client.connect()
             if connection:
                 
-                data = {}
-                # batteryWorkCapacity
-                result = client.read_holding_registers(1068, count=2, slave=71)
+                data = { 
+                    "scaleFactor": 1,
+                    "batteryWorkCapacity": 0,
+                    "maxChargePower": 0,
+                    "maxDischargePower": 0,
+                    "minSoc": 5,
+                    "maxSoc": 100
+                }
+                
+                # Power Scale Factor
+                result = await client.read_holding_registers(1025, count=1, slave=71)
                 if not result.isError():
                     #result_float = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.FLOAT32, word_order="little")
+                    power_scale_factor = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.INT16)
+                    data["scaleFactor"] = power_scale_factor
+                else:
+                    _LOGGER.error("Error reading registers")
+                
+                # batteryWorkCapacity
+                if not result.isError():
                     result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
                     data["batteryWorkCapacity"] = result_float
                 else:
                     _LOGGER.error("Error reading registers")
 
-                # Minimum/Maximum SOC
-                result = client.read_holding_registers(1042, count=4, slave=71)
+                # Battery max. charge/discharge power limit and Minimum/Maximum SOC
+                result = await client.read_holding_registers(1038, count=8, slave=71)
                 if not result.isError():
-                    #result_float = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.FLOAT32, word_order="little")
-                    min_soc = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
-                    max_soc = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
+                    max_charge_power_limit = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
+                    max_discharge_power_limit = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
+                    min_soc = client.convert_from_registers(registers=list(reversed(result.registers[4:6])), data_type=client.DATATYPE.FLOAT32)
+                    max_soc = client.convert_from_registers(registers=list(reversed(result.registers[6:8])), data_type=client.DATATYPE.FLOAT32)
+
+                    data["maxChargePower"] = max_charge_power_limit
+                    data["maxDischargePower"] = max_discharge_power_limit
                     data["minSoc"] = min_soc
                     data["maxSoc"] = max_soc
                 else:
@@ -112,4 +130,27 @@ class InverterCoordinator(DataUpdateCoordinator):
 
         return data
 
-        #        #raise UpdateFailed(f"Error communicating with socket: {e}")
+    async def async_set_min_soc(self, value: float) -> None:
+        """set minimum soc"""        
+        _LOGGER.warn("InverterCoordinator async_set_min_soc")
+
+        client = AsyncModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
+
+        try:
+            connection = await client.connect()
+            if connection:
+
+                registers = client.convert_to_registers(value=value, data_type=client.DATATYPE.FLOAT32)
+                result = await client.write_registers(1042, values=list(reversed(registers)), slave=71)
+                if not result.isError():
+                    _LOGGER.error("Error writing registers")
+
+            else:
+                _LOGGER.error("Connection failed")
+
+        except ModbusException as e:
+            _LOGGER.error(f"Modbus error: {e}")
+
+        finally:
+            client.close()
+
