@@ -81,8 +81,8 @@ class InverterCoordinator(DataUpdateCoordinator):
             "batteryWorkCapacity": 0,
             "maxChargePower": 0,
             "maxDischargePower": 0,
-            "minSoc": 5,
-            "maxSoc": 100
+            "min_soc": 5,
+            "max_soc": 100
         }
 
 
@@ -117,8 +117,8 @@ class InverterCoordinator(DataUpdateCoordinator):
 
                     data["maxChargePower"] = max_charge_power_limit
                     data["maxDischargePower"] = max_discharge_power_limit
-                    data["minSoc"] = min_soc
-                    data["maxSoc"] = max_soc
+                    data["min_soc"] = min_soc
+                    data["max_soc"] = max_soc
                 else:
                     _LOGGER.error("Error reading registers")
             else:
@@ -136,6 +136,29 @@ class InverterCoordinator(DataUpdateCoordinator):
         """set minimum soc"""        
         _LOGGER.warn("InverterCoordinator async_set_min_soc")
 
+        client = AsyncModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
+
+        try:
+            connection = await client.connect()
+            if connection:
+
+                registers = client.convert_to_registers(value=value, data_type=client.DATATYPE.FLOAT32)
+                result = await client.write_registers(1042, values=list(reversed(registers)), slave=71)
+                if not result.isError():
+                    _LOGGER.error("Error writing registers")
+
+            else:
+                _LOGGER.error("Connection failed")
+
+        except ModbusException as e:
+            _LOGGER.error(f"Modbus error: {e}")
+
+        finally:
+            client.close()
+
+    async def async_set_float_alue(self, address: int, value: float) -> None:
+        """Set Float Value"""
+        
         client = AsyncModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
 
         try:

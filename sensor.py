@@ -154,62 +154,6 @@ class PowerScaleFactorSensor(CoordinatorEntity, SensorEntity):
 
 
 
-
-class MaxSocSensor(CoordinatorEntity, SensorEntity):
-    """Battery Maximum SOC sensor."""
-    
-    _attr_icon = "mdi:battery-90"
-    _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_native_unit_of_measurement = "%"
-    _attr_suggested_display_precision = 0
-
-    def __init__(self, coordinator, ip_address):
-        super().__init__(coordinator, context=0)
-
-        self._ip_address = ip_address  # Initialize the IP address
-        self._state = None
-        self._name = "Maximum SOC"
-        self._unique_id = f"max_soc_sensor_{ip_address.replace('.', '_')}"
-        self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def unique_id(self):
-        return self._unique_id
-
-    @property
-    def device_info(self):
-        """Get information about this device."""
-        return {
-            "identifiers": {(DOMAIN, self._device_id)},
-            "name": NAME,
-            "manufacturer": MANUFACTURER,
-            "model": MODEL,
-        }
-
-    @property
-    def state(self):
-        return self.coordinator.data["maxSoc"]
-        #return 0
-
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        self.async_write_ha_state()
-
-
-    async def async_update(self):
-        """Synchronize state"""
-        _LOGGER.info("async update")
-        await self.coordinator.async_request_refresh()
-
-
-
-
 class MaxChargePowerSensor(CoordinatorEntity, SensorEntity):
     """Battery Maximum charge power limit sensor."""
     
