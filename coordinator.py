@@ -92,7 +92,7 @@ class InverterCoordinator(DataUpdateCoordinator):
             if connection:
 
                 # Power Scale Factor
-                result = await client.read_holding_registers(1025, count=1, slave=71)
+                result = await client.read_holding_registers(1025, count=1, device_id=71)
                 if not result.isError():
                     #result_float = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.FLOAT32, word_order="little")
                     power_scale_factor = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.INT16)
@@ -101,7 +101,7 @@ class InverterCoordinator(DataUpdateCoordinator):
                     _LOGGER.error("Error reading registers")
 
                 # batteryWorkCapacity
-                result = await client.read_holding_registers(1068, count=2, slave=71)
+                result = await client.read_holding_registers(1068, count=2, device_id=71)
                 if not result.isError():
                     result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
                     data["batteryWorkCapacity"] = result_float
@@ -110,7 +110,7 @@ class InverterCoordinator(DataUpdateCoordinator):
 
 
                 # battery charge power (AC) setpoint relative
-                result = await client.read_holding_registers(1030, count=2, slave=71)
+                result = await client.read_holding_registers(1030, count=2, device_id=71)
                 if not result.isError():
                     result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
                     data["charge_power_ac"] = result_float
@@ -118,7 +118,7 @@ class InverterCoordinator(DataUpdateCoordinator):
                     _LOGGER.error("Error reading registers")
 
                 # Battery max. charge/discharge power limit and Minimum/Maximum SOC
-                result = await client.read_holding_registers(1038, count=8, slave=71)
+                result = await client.read_holding_registers(1038, count=8, device_id=71)
                 if not result.isError():
                     max_charge_power_limit = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
                     max_discharge_power_limit = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
