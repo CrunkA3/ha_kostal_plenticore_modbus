@@ -40,7 +40,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([
         BatteryWorkCapacitySensor(inverter_coordinator, ip_address),
         PowerScaleFactorSensor(inverter_coordinator, ip_address),
-        MaxSocSensor(inverter_coordinator, ip_address),
         MaxChargePowerSensor(inverter_coordinator, ip_address),
         MaxDischargePowerSensor(inverter_coordinator, ip_address)
         ])

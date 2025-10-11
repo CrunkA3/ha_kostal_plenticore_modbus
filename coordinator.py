@@ -77,12 +77,13 @@ class InverterCoordinator(DataUpdateCoordinator):
         client = AsyncModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
 
         data = { 
-            "scaleFactor": 1,
+            "scaleFactor": 0,
             "batteryWorkCapacity": 0,
             "maxChargePower": 0,
             "maxDischargePower": 0,
             "min_soc": 5,
-            "max_soc": 100
+            "max_soc": 100,
+            "charge_power_ac": 0
         }
 
 
@@ -104,6 +105,15 @@ class InverterCoordinator(DataUpdateCoordinator):
                 if not result.isError():
                     result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
                     data["batteryWorkCapacity"] = result_float
+                else:
+                    _LOGGER.error("Error reading registers")
+
+
+                # battery charge power (AC) setpoint relative
+                result = await client.read_holding_registers(1030, count=2, slave=71)
+                if not result.isError():
+                    result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
+                    data["charge_power_ac"] = result_float
                 else:
                     _LOGGER.error("Error reading registers")
 
