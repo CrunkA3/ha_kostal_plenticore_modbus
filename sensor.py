@@ -41,7 +41,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
         BatteryWorkCapacitySensor(inverter_coordinator, ip_address),
         PowerScaleFactorSensor(inverter_coordinator, ip_address),
         MaxChargePowerSensor(inverter_coordinator, ip_address),
-        MaxDischargePowerSensor(inverter_coordinator, ip_address)
+        MaxDischargePowerSensor(inverter_coordinator, ip_address),
+        CurrentDcSensor(inverter_coordinator, ip_address, 1, 258),
+        CurrentDcSensor(inverter_coordinator, ip_address, 2, 268),
+        CurrentDcSensor(inverter_coordinator, ip_address, 3, 278),
+        PowerDcSensor(inverter_coordinator, ip_address, 1, 260),
+        PowerDcSensor(inverter_coordinator, ip_address, 2, 270),
+        PowerDcSensor(inverter_coordinator, ip_address, 3, 280),
+        VoltageDcSensor(inverter_coordinator, ip_address, 1, 266),
+        VoltageDcSensor(inverter_coordinator, ip_address, 2, 276),
+        VoltageDcSensor(inverter_coordinator, ip_address, 3, 286)
         ])
 
 
@@ -250,6 +259,173 @@ class MaxDischargePowerSensor(CoordinatorEntity, SensorEntity):
     def state(self):
         return self.coordinator.data["maxDischargePower"]
         #return 0
+
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self.async_write_ha_state()
+
+
+    async def async_update(self):
+        """Synchronize state"""
+        await self.coordinator.async_request_refresh()
+
+
+
+
+class CurrentDcSensor(CoordinatorEntity, SensorEntity):
+    """Current DC sensor."""
+    
+    _attr_icon = "mdi:current-dc"
+    _attr_device_class = "current"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "A"
+    _attr_suggested_display_precision = 2
+
+    def __init__(self, coordinator, ip_address, dc_number, register_address):
+        super().__init__(coordinator, context=0)
+
+        self._ip_address = ip_address  # Initialize the IP address
+        self._dc_number = dc_number
+        self._register_address = register_address
+        self._state = None
+
+        self._name = f"Current DC {dc_number}"
+        self._unique_id = f"current_dc_sensor_{dc_number}_{ip_address.replace('.', '_')}"
+        self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def unique_id(self):
+        return self._unique_id
+
+    @property
+    def device_info(self):
+        """Get information about this device."""
+        return {
+            "identifiers": {(DOMAIN, self._device_id)},
+            "name": NAME,
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    @property
+    def state(self):
+        return self.coordinator.data[f"current_dc_{self._dc_number}"]
+
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self.async_write_ha_state()
+
+
+    async def async_update(self):
+        """Synchronize state"""
+        await self.coordinator.async_request_refresh()
+
+
+class PowerDcSensor(CoordinatorEntity, SensorEntity):
+    """Power DC sensor."""
+    
+    _attr_icon = "mdi:flash"
+    _attr_device_class = "power"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "W"
+    _attr_suggested_display_precision = 0
+
+    def __init__(self, coordinator, ip_address, dc_number, register_address):
+        super().__init__(coordinator, context=0)
+
+        self._ip_address = ip_address  # Initialize the IP address
+        self._dc_number = dc_number
+        self._register_address = register_address
+        self._state = None
+
+        self._name = f"Power DC {dc_number}"
+        self._unique_id = f"power_dc_sensor_{dc_number}_{ip_address.replace('.', '_')}"
+        self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def unique_id(self):
+        return self._unique_id
+
+    @property
+    def device_info(self):
+        """Get information about this device."""
+        return {
+            "identifiers": {(DOMAIN, self._device_id)},
+            "name": NAME,
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    @property
+    def state(self):
+        return self.coordinator.data[f"power_dc_{self._dc_number}"]
+
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self.async_write_ha_state()
+
+
+    async def async_update(self):
+        """Synchronize state"""
+        await self.coordinator.async_request_refresh()
+
+
+class VoltageDcSensor(CoordinatorEntity, SensorEntity):
+    """Voltage DC sensor."""
+    
+    _attr_icon = "mdi:sine-wave"
+    _attr_device_class = "voltage"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "V"
+    _attr_suggested_display_precision = 0
+
+    def __init__(self, coordinator, ip_address, dc_number, register_address):
+        super().__init__(coordinator, context=0)
+
+        self._ip_address = ip_address  # Initialize the IP address
+        self._dc_number = dc_number
+        self._register_address = register_address
+        self._state = None
+
+        self._name = f"Voltage DC {dc_number}"
+        self._unique_id = f"voltage_dc_sensor_{dc_number}_{ip_address.replace('.', '_')}"
+        self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def unique_id(self):
+        return self._unique_id
+
+    @property
+    def device_info(self):
+        """Get information about this device."""
+        return {
+            "identifiers": {(DOMAIN, self._device_id)},
+            "name": NAME,
+            "manufacturer": MANUFACTURER,
+            "model": MODEL,
+        }
+
+    @property
+    def state(self):
+        return self.coordinator.data[f"voltage_dc_{self._dc_number}"]
 
 
     @callback

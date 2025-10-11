@@ -83,7 +83,16 @@ class InverterCoordinator(DataUpdateCoordinator):
             "maxDischargePower": 0,
             "min_soc": 5,
             "max_soc": 100,
-            "charge_power_ac": 0
+            "charge_power_ac": 0,
+            "current_dc_1": 0,
+            "current_dc_2": 0,
+            "current_dc_3": 0,
+            "power_dc_1": 0,
+            "power_dc_2": 0,
+            "power_dc_3": 0,
+            "voltage_dc_1": 0,
+            "voltage_dc_2": 0,
+            "voltage_dc_3": 0
         }
 
 
@@ -131,6 +140,36 @@ class InverterCoordinator(DataUpdateCoordinator):
                     data["max_soc"] = max_soc
                 else:
                     _LOGGER.error("Error reading registers")
+
+
+
+                # dc informations (current/power/voltage)
+                result = await client.read_holding_registers(258, count=10, device_id=71)
+                if not result.isError():
+                    data["current_dc_1"] = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
+                    data["power_dc_1"] = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
+                    data["voltage_dc_1"] = client.convert_from_registers(registers=list(reversed(result.registers[8:10])), data_type=client.DATATYPE.FLOAT32)
+                else:
+                    _LOGGER.error("Error reading registers")
+
+                result = await client.read_holding_registers(268, count=10, device_id=71)
+                if not result.isError():
+                    data["current_dc_2"] = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
+                    data["power_dc_2"] = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
+                    data["voltage_dc_2"] = client.convert_from_registers(registers=list(reversed(result.registers[8:10])), data_type=client.DATATYPE.FLOAT32)
+                else:
+                    _LOGGER.error("Error reading registers")
+
+                result = await client.read_holding_registers(278, count=10, device_id=71)
+                if not result.isError():
+                    data["current_dc_3"] = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
+                    data["power_dc_3"] = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
+                    data["voltage_dc_3"] = client.convert_from_registers(registers=list(reversed(result.registers[8:10])), data_type=client.DATATYPE.FLOAT32)
+                else:
+                    _LOGGER.error("Error reading registers")
+
+
+
             else:
                 _LOGGER.error("Connection failed")
 
