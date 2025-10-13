@@ -104,7 +104,7 @@ class  KostalModbusNumber(CoordinatorEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self.coordinator.async_set_float_alue(self._modbus_address, value)
+        await self.coordinator.async_set_float_value(self._modbus_address, value)
 
 
 

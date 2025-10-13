@@ -76,7 +76,8 @@ class InverterCoordinator(DataUpdateCoordinator):
 
         client = AsyncModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
 
-        data = { 
+        data = {
+            "inverter_state": 18,
             "scaleFactor": 0,
             "batteryWorkCapacity": 0,
             "maxChargePower": 0,
@@ -92,13 +93,44 @@ class InverterCoordinator(DataUpdateCoordinator):
             "power_dc_3": 0,
             "voltage_dc_1": 0,
             "voltage_dc_2": 0,
-            "voltage_dc_3": 0
+            "voltage_dc_3": 0,
+            "registers": [0 for _ in range(1083)]
         }
 
 
         try:
             connection = await client.connect()
             if connection:
+                # read Registers
+                result = await client.read_holding_registers(98, count=8, device_id=71)
+                if not result.isError():
+                    data["registers"][98:116] = result.registers
+                else:
+                    _LOGGER.error("Error reading registers")
+
+                # read Registers (Consumption)
+                result = await client.read_holding_registers(106, count=14, device_id=71)
+                if not result.isError():
+                    data["registers"][106:120] = result.registers
+                else:
+                    _LOGGER.error("Error reading registers")
+
+
+                # read Registers (Consumption)
+                result = await client.read_holding_registers(258, count=30, device_id=71)
+                if not result.isError():
+                    data["registers"][258:288] = result.registers
+                else:
+                    _LOGGER.error("Error reading registers")
+
+
+                # Inverter State
+                result = await client.read_holding_registers(56, count=2, device_id=71)
+                if not result.isError():
+                    result_uint = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.UINT32)
+                    data["inverter_state"] = result_uint
+                else:
+                    _LOGGER.error("Error reading registers")
 
                 # Power Scale Factor
                 result = await client.read_holding_registers(1025, count=1, device_id=71)
@@ -205,7 +237,7 @@ class InverterCoordinator(DataUpdateCoordinator):
         finally:
             client.close()
 
-    async def async_set_float_alue(self, address: int, value: float) -> None:
+    async def async_set_float_value(self, address: int, value: float) -> None:
         """Set Float Value"""
         
         client = AsyncModbusTcpClient(self._ip_address, port=1502)  # IP-Adresse und Port des Inverters
@@ -228,3 +260,5 @@ class InverterCoordinator(DataUpdateCoordinator):
         finally:
             client.close()
 
+    def read_float32(self, address: int) -> float:
+        return AsyncModbusTcpClient.convert_from_registers(registers=list(reversed(self.data["registers"][address:address+2])), data_type=AsyncModbusTcpClient.DATATYPE.FLOAT32)
