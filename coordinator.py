@@ -78,22 +78,6 @@ class InverterCoordinator(DataUpdateCoordinator):
 
         data = {
             "inverter_state": 18,
-            "scaleFactor": 0,
-            "batteryWorkCapacity": 0,
-            "maxChargePower": 0,
-            "maxDischargePower": 0,
-            "min_soc": 5,
-            "max_soc": 100,
-            "charge_power_ac": 0,
-            "current_dc_1": 0,
-            "current_dc_2": 0,
-            "current_dc_3": 0,
-            "power_dc_1": 0,
-            "power_dc_2": 0,
-            "power_dc_3": 0,
-            "voltage_dc_1": 0,
-            "voltage_dc_2": 0,
-            "voltage_dc_3": 0,
             "registers": [0 for _ in range(1083)]
         }
 
@@ -123,6 +107,27 @@ class InverterCoordinator(DataUpdateCoordinator):
                 else:
                     _LOGGER.error("Error reading registers")
 
+                # read Registers (Battery)
+                result = await client.read_holding_registers(512, count=18, device_id=71)
+                if not result.isError():
+                    data["registers"][512:530] = result.registers
+                else:
+                    _LOGGER.error("Error reading registers")
+
+                # read Registers (Power Scale Factor)
+                result = await client.read_holding_registers(1025, count=1, device_id=71)
+                if not result.isError():
+                    data["registers"][1025:1026] = result.registers
+                else:
+                    _LOGGER.error("Error reading registers")
+
+                # read Registers (Battery max. charge/discharge power limit and Minimum/Maximum SOC)
+                result = await client.read_holding_registers(1030, count=53, device_id=71)
+                if not result.isError():
+                    data["registers"][1030:1083] = result.registers
+                else:
+                    _LOGGER.error("Error reading registers")
+
 
                 # Inverter State
                 result = await client.read_holding_registers(56, count=2, device_id=71)
@@ -131,75 +136,6 @@ class InverterCoordinator(DataUpdateCoordinator):
                     data["inverter_state"] = result_uint
                 else:
                     _LOGGER.error("Error reading registers")
-
-                # Power Scale Factor
-                result = await client.read_holding_registers(1025, count=1, device_id=71)
-                if not result.isError():
-                    #result_float = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.FLOAT32, word_order="little")
-                    power_scale_factor = client.convert_from_registers(registers=result.registers, data_type=client.DATATYPE.INT16)
-                    data["scaleFactor"] = power_scale_factor
-                else:
-                    _LOGGER.error("Error reading registers")
-
-                # batteryWorkCapacity
-                result = await client.read_holding_registers(1068, count=2, device_id=71)
-                if not result.isError():
-                    result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
-                    data["batteryWorkCapacity"] = result_float
-                else:
-                    _LOGGER.error("Error reading registers")
-
-
-                # battery charge power (AC) setpoint relative
-                result = await client.read_holding_registers(1030, count=2, device_id=71)
-                if not result.isError():
-                    result_float = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.FLOAT32)
-                    data["charge_power_ac"] = result_float
-                else:
-                    _LOGGER.error("Error reading registers")
-
-                # Battery max. charge/discharge power limit and Minimum/Maximum SOC
-                result = await client.read_holding_registers(1038, count=8, device_id=71)
-                if not result.isError():
-                    max_charge_power_limit = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
-                    max_discharge_power_limit = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
-                    min_soc = client.convert_from_registers(registers=list(reversed(result.registers[4:6])), data_type=client.DATATYPE.FLOAT32)
-                    max_soc = client.convert_from_registers(registers=list(reversed(result.registers[6:8])), data_type=client.DATATYPE.FLOAT32)
-
-                    data["maxChargePower"] = max_charge_power_limit
-                    data["maxDischargePower"] = max_discharge_power_limit
-                    data["min_soc"] = min_soc
-                    data["max_soc"] = max_soc
-                else:
-                    _LOGGER.error("Error reading registers")
-
-
-
-                # dc informations (current/power/voltage)
-                result = await client.read_holding_registers(258, count=10, device_id=71)
-                if not result.isError():
-                    data["current_dc_1"] = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
-                    data["power_dc_1"] = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
-                    data["voltage_dc_1"] = client.convert_from_registers(registers=list(reversed(result.registers[8:10])), data_type=client.DATATYPE.FLOAT32)
-                else:
-                    _LOGGER.error("Error reading registers")
-
-                result = await client.read_holding_registers(268, count=10, device_id=71)
-                if not result.isError():
-                    data["current_dc_2"] = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
-                    data["power_dc_2"] = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
-                    data["voltage_dc_2"] = client.convert_from_registers(registers=list(reversed(result.registers[8:10])), data_type=client.DATATYPE.FLOAT32)
-                else:
-                    _LOGGER.error("Error reading registers")
-
-                result = await client.read_holding_registers(278, count=10, device_id=71)
-                if not result.isError():
-                    data["current_dc_3"] = client.convert_from_registers(registers=list(reversed(result.registers[:2])), data_type=client.DATATYPE.FLOAT32)
-                    data["power_dc_3"] = client.convert_from_registers(registers=list(reversed(result.registers[2:4])), data_type=client.DATATYPE.FLOAT32)
-                    data["voltage_dc_3"] = client.convert_from_registers(registers=list(reversed(result.registers[8:10])), data_type=client.DATATYPE.FLOAT32)
-                else:
-                    _LOGGER.error("Error reading registers")
-
 
 
             else:
@@ -262,3 +198,9 @@ class InverterCoordinator(DataUpdateCoordinator):
 
     def read_float32(self, address: int) -> float:
         return AsyncModbusTcpClient.convert_from_registers(registers=list(reversed(self.data["registers"][address:address+2])), data_type=AsyncModbusTcpClient.DATATYPE.FLOAT32)
+
+    def read_int16(self, address: int) -> int:
+        return AsyncModbusTcpClient.convert_from_registers(registers=list(self.data["registers"][address:address+1]), data_type=AsyncModbusTcpClient.DATATYPE.INT16)
+
+    def read_uint16(self, address: int) -> int:
+        return AsyncModbusTcpClient.convert_from_registers(registers=list(self.data["registers"][address:address+1]), data_type=AsyncModbusTcpClient.DATATYPE.UINT16)
