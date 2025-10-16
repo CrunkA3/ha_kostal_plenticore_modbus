@@ -81,52 +81,43 @@ class InverterCoordinator(DataUpdateCoordinator):
             "registers": [0 for _ in range(1083)]
         }
 
+        async def read_holding_registers(address, count):
+            result = await client.read_holding_registers(address, count=count, device_id=71)
+            if not result.isError():
+                data["registers"][address:address+count] = result.registers
+            else:
+                _LOGGER.error("Error reading registers")
 
         try:
             connection = await client.connect()
+
             if connection:
                 # read Registers
-                result = await client.read_holding_registers(98, count=8, device_id=71)
-                if not result.isError():
-                    data["registers"][98:116] = result.registers
-                else:
-                    _LOGGER.error("Error reading registers")
+                await read_holding_registers(98, 8)
 
                 # read Registers (Consumption)
-                result = await client.read_holding_registers(106, count=14, device_id=71)
-                if not result.isError():
-                    data["registers"][106:120] = result.registers
-                else:
-                    _LOGGER.error("Error reading registers")
+                await read_holding_registers(106, 14)
 
+                # read Registers (Worktime)
+                await read_holding_registers(144, 2)
 
-                # read Registers (Consumption)
-                result = await client.read_holding_registers(258, count=30, device_id=71)
-                if not result.isError():
-                    data["registers"][258:288] = result.registers
-                else:
-                    _LOGGER.error("Error reading registers")
+                # read Registers (Battery Cycles)
+                await read_holding_registers(194, 2)
+                
+                # read Registers (Battery temperature)
+                await read_holding_registers(214, 2)
+
+                # read Registers (Power)
+                await read_holding_registers(258, 30)
 
                 # read Registers (Battery)
-                result = await client.read_holding_registers(512, count=18, device_id=71)
-                if not result.isError():
-                    data["registers"][512:530] = result.registers
-                else:
-                    _LOGGER.error("Error reading registers")
+                await read_holding_registers(512, 18)
 
                 # read Registers (Power Scale Factor)
-                result = await client.read_holding_registers(1025, count=1, device_id=71)
-                if not result.isError():
-                    data["registers"][1025:1026] = result.registers
-                else:
-                    _LOGGER.error("Error reading registers")
+                await read_holding_registers(1025, 1)
 
                 # read Registers (Battery max. charge/discharge power limit and Minimum/Maximum SOC)
-                result = await client.read_holding_registers(1030, count=53, device_id=71)
-                if not result.isError():
-                    data["registers"][1030:1083] = result.registers
-                else:
-                    _LOGGER.error("Error reading registers")
+                await read_holding_registers(1030, 53)
 
 
                 # Inverter State

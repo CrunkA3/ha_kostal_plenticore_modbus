@@ -62,22 +62,21 @@ async def async_setup_entry(hass, entry, async_add_entities):
     for ri in REGISTERS:
         match ri.type:
             case "U16":
-                sensors.append(KostalUInt16Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision))
+                sensors.append(KostalUInt16Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision, ri.sensor_state_class))
             case "Float":
-                sensors.append(KostalFloat32Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision))
+                sensors.append(KostalFloat32Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision, ri.sensor_state_class))
 
     async_add_entities(sensors)
 
 class KostalSensor(CoordinatorEntity, SensorEntity):
     """ Kostal sensor."""
     
-    _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = None
     _attr_device_class = None
     _attr_native_unit_of_measurement = None
     _attr_suggested_display_precision = None
 
-    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision):
+    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class = SensorStateClass.MEASUREMENT):
         super().__init__(coordinator, context=0)
 
         self._register_address = register_address
@@ -90,6 +89,7 @@ class KostalSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_native_unit_of_measurement = native_unit_of_measurement
         self._attr_suggested_display_precision = suggested_display_precision
+        self._attr_state_class = sensor_state_class
 
     @property
     def name(self):
@@ -122,8 +122,8 @@ class KostalSensor(CoordinatorEntity, SensorEntity):
 class KostalFloat32Sensor(KostalSensor):
     """ Kostal FLOAT32 sensor."""
 
-    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision):
-        super().__init__(coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision)
+    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class = SensorStateClass.MEASUREMENT):
+        super().__init__(coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class)
 
     @property
     def state(self):
@@ -133,8 +133,8 @@ class KostalFloat32Sensor(KostalSensor):
 class KostalInt16Sensor(KostalSensor):
     """ Kostal INT16 sensor."""
 
-    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision):
-        super().__init__(coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision)
+    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class = SensorStateClass.MEASUREMENT):
+        super().__init__(coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class)
 
     @property
     def state(self):
@@ -144,8 +144,8 @@ class KostalInt16Sensor(KostalSensor):
 class KostalUInt16Sensor(KostalSensor):
     """ Kostal UINT16 sensor."""
 
-    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision):
-        super().__init__(coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision)
+    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class = SensorStateClass.MEASUREMENT):
+        super().__init__(coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class)
 
     @property
     def state(self):

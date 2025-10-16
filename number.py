@@ -32,7 +32,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
     
     ip_address = entry.data[CONF_IP_ADDRESS]
 
-    #Add mowing info sensors
     inverter_coordinator = entry.runtime_data.inverter_coordinator
     async_add_entities([
         MinimumSocNumber(inverter_coordinator, ip_address),
@@ -83,12 +82,11 @@ class  KostalModbusNumber(CoordinatorEntity, NumberEntity):
 
     @property
     def scale_factor(self) -> float:
-        return 10 ** self.coordinator.data["scaleFactor"] if self._is_scaled else 1.0
+        return 10 ** self.coordinator.read_float32(1025) if self._is_scaled else 1.0
 
     @property
     def native_value(self):
-        return self.coordinator.data[self._property_name] * self.scale_factor
-        #return 0
+        return self.coordinator.read_float32(self._modbus_address) * self.scale_factor
 
 
     @callback
