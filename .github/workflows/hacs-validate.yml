@@ -1,4 +1,6 @@
 name: hacs-validate
+permissions:
+  contents: read
 
 on:
   push:
