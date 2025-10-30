@@ -57,15 +57,17 @@ class RegisterInfo():
     def type(self):
         """Getter for type"""
         return self._type
-        
+
     # Getter for icon
     @property
     def icon(self):
+        """Getter for icon"""
         return self._icon
 
     # Getter for device_class
     @property
     def device_class(self):
+        """Getter for device_class"""
         return self._device_class
 
     # Getter for display_precision
@@ -97,4 +99,3 @@ REGISTERS: list[RegisterInfo] = [
     RegisterInfo(194, "number_battery_cycles", "Number of battery cycles", None, "Float", "mdi:counter", None, 0, SensorStateClass.TOTAL_INCREASING),
     RegisterInfo(214, "battery_temperature", "Battery temperature", "°C", "Float", "mdi:thermometer", "TEMPERATURE", 1)
 ]
-
