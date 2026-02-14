@@ -109,5 +109,9 @@ REGISTERS: list[RegisterInfo] = [
     RegisterInfo(224, "active_power_phase_1_powermeter", "Active power phase 1 (powermeter)", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(234, "active_power_phase_2_powermeter", "Active power phase 2 (powermeter)", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(244, "active_power_phase_3_powermeter", "Active power phase 3 (powermeter)", "W", "Float", "mdi:flash", "power", 0),
-    RegisterInfo(252, "total_active_power_powermeter", "Total active power (powermeter)", "W", "Float", "mdi:flash", "power", 0)
+    RegisterInfo(252, "total_active_power_powermeter", "Total active power (powermeter)", "W", "Float", "mdi:flash", "power", 0),
+    RegisterInfo(320, "total_yield", " Total yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
+    RegisterInfo(322, "daily_yield", " Daily yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
+    RegisterInfo(324, "yearly_yield", " Yearly yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
+    RegisterInfo(326, "monthly_yield", " Monthly yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING)
 ]
