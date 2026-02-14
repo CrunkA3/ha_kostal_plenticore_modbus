@@ -100,6 +100,14 @@ REGISTERS: list[RegisterInfo] = [
     RegisterInfo(156, "active_power_phase_1", "Active power Phase 1", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(162, "active_power_phase_2", "Active power Phase 2", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(170, "active_power_phase_3", "Active power Phase 3", "W", "Float", "mdi:flash", "power", 0),
+    RegisterInfo(172, "total_ac_active_power", "Total AC active power", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(194, "number_battery_cycles", "Number of battery cycles", None, "Float", "mdi:counter", None, 0, SensorStateClass.TOTAL_INCREASING),
-    RegisterInfo(214, "battery_temperature", "Battery temperature", "°C", "Float", "mdi:thermometer", "TEMPERATURE", 1)
+    RegisterInfo(200, "actual_battery_charge", "Actual battery charge", "A", "Float", "mdi:current-dc", "current", 2),
+    RegisterInfo(514, "act_state_of_charge", "Act. state of charge", "%", "Float", "mdi:battery", "BATTERY", 0),
+    RegisterInfo(214, "battery_temperature", "Battery temperature", "°C", "Float", "mdi:thermometer", "TEMPERATURE", 1),
+    RegisterInfo(216, "battery_voltage", "Battery voltage", "V", "Float", "mdi:sine-wave", "voltage", 0),
+    RegisterInfo(224, "active_power_phase_1_powermeter", "Active power phase 1 (powermeter)", "W", "Float", "mdi:flash", "power", 0),
+    RegisterInfo(234, "active_power_phase_2_powermeter", "Active power phase 2 (powermeter)", "W", "Float", "mdi:flash", "power", 0),
+    RegisterInfo(244, "active_power_phase_3_powermeter", "Active power phase 3 (powermeter)", "W", "Float", "mdi:flash", "power", 0),
+    RegisterInfo(252, "total_active_power_powermeter", "Total active power (powermeter)", "W", "Float", "mdi:flash", "power", 0)
 ]
