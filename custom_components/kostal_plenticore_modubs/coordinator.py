@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import Final
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
 import logging
@@ -81,53 +82,41 @@ class InverterCoordinator(DataUpdateCoordinator):
             "registers": [0 for _ in range(1083)]
         }
 
+        # Optimized read plan (<=125 regs each). Covers:
+        # - inverter_state (56..57) + all sensors/numbers used by this integration incl. modbus_wichtig.xlsx set
+
+        READ_BLOCKS: Final[list[tuple[int, int]]] = [
+                (56, 2),  # inverter state (uint32 via word-swap)
+                (98, 22),  # 98..119  (controller temp + consumption/power/energy around 100..118)
+                (144, 2),  # worktime
+                (156, 18),  # 156..173  (AC power phases)
+                (194, 94),  # 194..287  (battery/house/grid + DC currents/powers/voltages)
+                (320, 8),  # 320..327  (yields)
+                (512, 18),  # 512..529  (battery SOC etc.)
+                (1024, 8),  # 1024..1031 (charge setpoint + scale factor + charge power number @1030)
+                (1042, 38),  # 1042..1079 (min/max soc + totals + battery work cap + max ch/disch)
+        ]
+
         async def read_holding_registers(address, count):
             result = await client.read_holding_registers(address, count=count, device_id=71)
             if not result.isError():
                 data["registers"][address:address+count] = result.registers
             else:
-                _LOGGER.error("Error reading registers")
+                _LOGGER.error("Error reading registers: addr=%s count=%s", address, count)
 
         try:
             connection = await client.connect()
 
             if connection:
-                # read Registers
-                await read_holding_registers(98, 8)
+                for addr, cnt in READ_BLOCKS:
+                    await read_holding_registers(addr, cnt)
 
-                # read Registers (Consumption)
-                await read_holding_registers(106, 14)
-
-                # read Registers (Worktime)
-                await read_holding_registers(144, 2)
-
-                # read Registers (Battery Cycles)
-                await read_holding_registers(194, 2)
-                
-                # read Registers (Battery temperature)
-                await read_holding_registers(214, 2)
-
-                # read Registers (Power)
-                await read_holding_registers(258, 30)
-
-                # read Registers (Battery)
-                await read_holding_registers(512, 18)
-
-                # read Registers (Power Scale Factor)
-                await read_holding_registers(1025, 1)
-
-                # read Registers (Battery max. charge/discharge power limit and Minimum/Maximum SOC)
-                await read_holding_registers(1030, 53)
-
-
-                # Inverter State
-                result = await client.read_holding_registers(56, count=2, device_id=71)
-                if not result.isError():
-                    result_uint = client.convert_from_registers(registers=list(reversed(result.registers)), data_type=client.DATATYPE.UINT32)
-                    data["inverter_state"] = result_uint
-                else:
-                    _LOGGER.error("Error reading registers")
-
+                # Inverter state decode from buffered registers (56..57) - word swap for CDAB
+                inv_regs = data["registers"][56:58]
+                data["inverter_state"] = client.convert_from_registers(
+                    registers = list(reversed(inv_regs)),
+                    data_type = client.DATATYPE.UINT32
+                )
 
             else:
                 _LOGGER.error("Connection failed")
