@@ -88,6 +88,7 @@ class RegisterInfo():
 
 REGISTERS: list[RegisterInfo] = [
     RegisterInfo(514, "battery_actual_soc", "Battery actual SOC", "%", "U16", "mdi:battery", "BATTERY", 0),
+    RegisterInfo(100, "total_dc_power", "Total DC power", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(106, "consumption_battery", "Home own consumption from battery", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(108, "consumption_grid", "Home own consumption from grid", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(116, "consumption_pv", "Home own consumption from PV", "W", "Float", "mdi:flash", "power", 0),
@@ -96,6 +97,9 @@ REGISTERS: list[RegisterInfo] = [
     RegisterInfo(114, "consumption_pv_total", " Total home consumption PV", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
     RegisterInfo(118, "consumption_total", "Total home consumption", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
     RegisterInfo(118, "worktime", "Worktime", "s", "Float", "mdi:timer", "duration", 0, SensorStateClass.TOTAL),
+    RegisterInfo(156, "active_power_phase_1", "Active power Phase 1", "W", "Float", "mdi:flash", "power", 0),
+    RegisterInfo(162, "active_power_phase_2", "Active power Phase 2", "W", "Float", "mdi:flash", "power", 0),
+    RegisterInfo(170, "active_power_phase_3", "Active power Phase 3", "W", "Float", "mdi:flash", "power", 0),
     RegisterInfo(194, "number_battery_cycles", "Number of battery cycles", None, "Float", "mdi:counter", None, 0, SensorStateClass.TOTAL_INCREASING),
     RegisterInfo(214, "battery_temperature", "Battery temperature", "°C", "Float", "mdi:thermometer", "TEMPERATURE", 1)
 ]
