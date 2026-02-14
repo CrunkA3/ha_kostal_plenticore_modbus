@@ -93,22 +93,7 @@ class InverterCoordinator(DataUpdateCoordinator):
 
             if connection:
                 # read Registers
-                await read_holding_registers(98, 8)
-
-                # read Registers (Consumption)
-                await read_holding_registers(106, 14)
-
-                # read Registers (Worktime)
-                await read_holding_registers(144, 2)
-
-                # read Registers (Battery Cycles)
-                await read_holding_registers(194, 2)
-                
-                # read Registers (Battery temperature)
-                await read_holding_registers(214, 2)
-
-                # read Registers (Power)
-                await read_holding_registers(258, 30)
+                await read_holding_registers(98, 230)
 
                 # read Registers (Battery)
                 await read_holding_registers(512, 18)
