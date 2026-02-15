@@ -89,7 +89,7 @@ class InverterCoordinator(DataUpdateCoordinator):
             if not result.isError():
                 data["registers"][address : address + count] = result.registers
             else:
-                _LOGGER.error("Error reading registers")
+                _LOGGER.error("Error reading registers: addr=%s count=%s", address, count)
 
         try:
             connection = await client.connect()
@@ -97,7 +97,7 @@ class InverterCoordinator(DataUpdateCoordinator):
             if connection:
                 # read Registers
                 await read_holding_registers(98, 124)
-                await read_holding_registers(221, 124)
+                await read_holding_registers(222, 124)
 
                 # read Registers (Battery)
                 await read_holding_registers(512, 18)
@@ -132,7 +132,7 @@ class InverterCoordinator(DataUpdateCoordinator):
 
     async def async_set_min_soc(self, value: float) -> None:
         """set minimum soc"""
-        _LOGGER.warn("InverterCoordinator async_set_min_soc")
+        _LOGGER.warning("InverterCoordinator async_set_min_soc")
 
         client = AsyncModbusTcpClient(
             self._ip_address, port=1502
@@ -229,4 +229,33 @@ class InverterCoordinator(DataUpdateCoordinator):
         return AsyncModbusTcpClient.convert_from_registers(
             registers=list(self.data["registers"][address : address + 1]),
             data_type=AsyncModbusTcpClient.DATATYPE.UINT16,
+        )
+
+
+    def read_int32(self, address: int) -> int:
+        """
+        Read Int32 value from registers
+
+        :param address: The starting address of the registers
+        :type address: int
+        :return: The Int32 value read from the registers
+        :rtype: int
+        """
+        return AsyncModbusTcpClient.convert_from_registers(
+            registers=list(self.data["registers"][address : address + 2]),
+            data_type=AsyncModbusTcpClient.DATATYPE.INT32,
+        )
+
+    def read_uint32(self, address: int) -> int:
+        """
+        Read UInt32 value from registers
+
+        :param address: The starting address of the registers
+        :type address: int
+        :return: The UInt32 value read from the registers
+        :rtype: int
+        """
+        return AsyncModbusTcpClient.convert_from_registers(
+            registers=list(self.data["registers"][address : address + 2]),
+            data_type=AsyncModbusTcpClient.DATATYPE.UINT32,
         )
