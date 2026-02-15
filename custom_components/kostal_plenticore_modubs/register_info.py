@@ -35,21 +35,25 @@ class RegisterInfo():
     # Getter for address
     @property
     def address(self):
+        """Getter for address"""
         return self._address
 
     # Getter for unique_id
     @property
     def unique_id(self):
+        """Getter for unique_id"""
         return self._unique_id
 
     # Getter for name
     @property
     def name(self):
+        """Getter for name"""
         return self._name
 
     # Getter for unit
     @property
     def unit(self):
+        """Getter for unit"""
         return self._unit
 
     @property
@@ -72,11 +76,13 @@ class RegisterInfo():
     # Getter for display_precision
     @property
     def display_precision(self):
+        """Getter for display_precision"""
         return self._display_precision
 
     # Getter for access
     @property
     def access(self):
+        """Getter for access"""
         return self._access
 
     @property
