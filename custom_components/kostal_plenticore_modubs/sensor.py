@@ -63,6 +63,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
         match ri.type:
             case "U16":
                 sensors.append(KostalUInt16Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision, ri.sensor_state_class))
+            case "S16":
+                sensors.append(KostalInt16Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision, ri.sensor_state_class))
+            case "U32":
+                sensors.append(KostalUInt32Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision, ri.sensor_state_class))
+            case "S32":
+                sensors.append(KostalInt32Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision, ri.sensor_state_class))
             case "Float":
                 sensors.append(KostalFloat32Sensor(inverter_coordinator, ip_address, ri.address, ri.unique_id, ri.name, ri.icon, ri.device_class, ri.unit, ri.display_precision, ri.sensor_state_class))
 
@@ -130,6 +136,8 @@ class KostalFloat32Sensor(KostalSensor):
         return self.coordinator.read_float32(self._register_address)
 
 
+
+
 class KostalInt16Sensor(KostalSensor):
     """ Kostal INT16 sensor."""
 
@@ -150,6 +158,36 @@ class KostalUInt16Sensor(KostalSensor):
     @property
     def state(self):
         return self.coordinator.read_uint16(self._register_address)
+    
+
+
+
+class KostalInt32Sensor(KostalSensor):
+    """ Kostal INT32 sensor."""
+
+    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class = SensorStateClass.MEASUREMENT):
+        super().__init__(coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class)
+
+    @property
+    def state(self):
+        return self.coordinator.read_int32(self._register_address)
+
+
+class KostalUInt32Sensor(KostalSensor):
+    """ Kostal UINT32 sensor."""
+    def __init__(self, coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class = SensorStateClass.MEASUREMENT):
+        super().__init__(coordinator, ip_address, register_address, unique_id, name, icon, device_class, native_unit_of_measurement, suggested_display_precision, sensor_state_class)
+
+    @property
+    def state(self):
+        return self.coordinator.read_uint32(self._register_address)
+    
+
+
+
+
+
+
 
 class BatteryWorkCapacitySensor(KostalFloat32Sensor):
     """Battery work capacity sensor."""
