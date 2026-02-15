@@ -230,3 +230,32 @@ class InverterCoordinator(DataUpdateCoordinator):
             registers=list(self.data["registers"][address : address + 1]),
             data_type=AsyncModbusTcpClient.DATATYPE.UINT16,
         )
+
+
+    def read_int32(self, address: int) -> int:
+        """
+        Read Int32 value from registers
+
+        :param address: The starting address of the registers
+        :type address: int
+        :return: The Int32 value read from the registers
+        :rtype: int
+        """
+        return AsyncModbusTcpClient.convert_from_registers(
+            registers=list(self.data["registers"][address : address + 2]),
+            data_type=AsyncModbusTcpClient.DATATYPE.INT32,
+        )
+
+    def read_uint32(self, address: int) -> int:
+        """
+        Read UInt32 value from registers
+
+        :param address: The starting address of the registers
+        :type address: int
+        :return: The UInt32 value read from the registers
+        :rtype: int
+        """
+        return AsyncModbusTcpClient.convert_from_registers(
+            registers=list(self.data["registers"][address : address + 2]),
+            data_type=AsyncModbusTcpClient.DATATYPE.UINT32,
+        )
