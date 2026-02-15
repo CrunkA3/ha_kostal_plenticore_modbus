@@ -44,8 +44,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
     sensors = [
         InverterStateSensor(inverter_coordinator, ip_address, 56),
         ControllerTemperatureSensor(inverter_coordinator, ip_address, 98),
-        BatteryWorkCapacitySensor(inverter_coordinator, ip_address, 1068),
-        PowerScaleFactorSensor(inverter_coordinator, ip_address, 1025),
         MaxChargePowerSensor(inverter_coordinator, ip_address, 1076),
         MaxDischargePowerSensor(inverter_coordinator, ip_address, 1078),
         CurrentDcSensor(inverter_coordinator, ip_address, 1, 258),
@@ -99,10 +97,12 @@ class KostalSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def name(self):
+        """Return the name of the sensor."""
         return self._name
 
     @property
     def unique_id(self):
+        """Return the unique ID of the sensor."""
         return self._unique_id
 
     @property
@@ -189,22 +189,6 @@ class KostalUInt32Sensor(KostalSensor):
 
 
 
-class BatteryWorkCapacitySensor(KostalFloat32Sensor):
-    """Battery work capacity sensor."""
-
-    def __init__(self, coordinator, ip_address, register_address):
-        super().__init__(coordinator, ip_address, register_address, "battery_work_capacity_sensor", "Battery work capacity", "mdi:battery", "energy_storage", "Wh", 0)
-
-
-
-class PowerScaleFactorSensor(KostalInt16Sensor):
-    """ Power Scale Factor sensor."""
-
-    def __init__(self, coordinator, ip_address, register_address):
-        super().__init__(coordinator, ip_address, register_address, "power_scale_factor", "Power Scale Factor", "mdi:function-variant", None, None, 0)
-
-
-
 class MaxChargePowerSensor(KostalFloat32Sensor):
     """Battery Maximum charge power limit sensor."""
 
@@ -216,7 +200,7 @@ class MaxDischargePowerSensor(KostalFloat32Sensor):
     """Battery Maximum discharge power limit sensor."""
 
     def __init__(self, coordinator, ip_address, register_address):
-        super().__init__(coordinator, ip_address, register_address, f"max_discharge_power_sensor", "Maximum Discharge Power", "mdi:battery-charging-10", "power", "W", 0)
+        super().__init__(coordinator, ip_address, register_address, "max_discharge_power_sensor", "Maximum Discharge Power", "mdi:battery-charging-10", "power", "W", 0)
 
 
 class CurrentDcSensor(KostalFloat32Sensor):
@@ -283,16 +267,18 @@ class InverterStateSensor(CoordinatorEntity, SensorEntity):
         self._register_address = register_address
         self._state = None
 
-        self._name = f"Inverter State"
+        self._name = "Inverter State"
         self._unique_id = f"inverter_state_sensor_{ip_address.replace('.', '_')}"
         self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
 
     @property
     def name(self):
+        """Return the name of the sensor."""
         return self._name
 
     @property
     def unique_id(self):
+        """Return the unique ID of the sensor."""
         return self._unique_id
 
     @property
@@ -307,6 +293,7 @@ class InverterStateSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def state(self):
+        """Return the state of the sensor."""
         inverter_state = self.coordinator.data["inverter_state"]
         return self._options_enum[inverter_state]
 
@@ -323,4 +310,5 @@ class InverterStateSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def options(self):
+        """Return the list of available options."""
         return list(self._options_enum)

@@ -118,5 +118,7 @@ REGISTERS: list[RegisterInfo] = [
     RegisterInfo(320, "total_yield", " Total yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
     RegisterInfo(322, "daily_yield", " Daily yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
     RegisterInfo(324, "yearly_yield", " Yearly yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
-    RegisterInfo(326, "monthly_yield", " Monthly yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING)
+    RegisterInfo(326, "monthly_yield", " Monthly yield", "Wh", "Float", "mdi:flash", "energy", 0, SensorStateClass.TOTAL_INCREASING),
+    RegisterInfo(1025, "power_scale_factor", "Power Scale Factor", None, "S16", "mdi:function-variant", None, 0),
+    RegisterInfo(1068, "battery_work_capacity_sensor", "Battery work capacity", "Wh", "Float", "mdi:battery", "energy_storage", 0)
 ]

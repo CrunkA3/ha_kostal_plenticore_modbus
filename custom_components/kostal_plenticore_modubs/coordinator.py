@@ -89,7 +89,7 @@ class InverterCoordinator(DataUpdateCoordinator):
             if not result.isError():
                 data["registers"][address : address + count] = result.registers
             else:
-                _LOGGER.error("Error reading registers")
+                _LOGGER.error("Error reading registers: addr=%s count=%s", address, count)
 
         try:
             connection = await client.connect()
@@ -97,7 +97,7 @@ class InverterCoordinator(DataUpdateCoordinator):
             if connection:
                 # read Registers
                 await read_holding_registers(98, 124)
-                await read_holding_registers(221, 124)
+                await read_holding_registers(222, 124)
 
                 # read Registers (Battery)
                 await read_holding_registers(512, 18)
@@ -132,7 +132,7 @@ class InverterCoordinator(DataUpdateCoordinator):
 
     async def async_set_min_soc(self, value: float) -> None:
         """set minimum soc"""
-        _LOGGER.warn("InverterCoordinator async_set_min_soc")
+        _LOGGER.warning("InverterCoordinator async_set_min_soc")
 
         client = AsyncModbusTcpClient(
             self._ip_address, port=1502
