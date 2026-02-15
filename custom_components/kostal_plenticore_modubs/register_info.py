@@ -26,7 +26,6 @@ class RegisterInfo():
         self._name = name
         self._unit = unit
         self._type = type
-        self._type = type
         self._icon = icon
         self._device_class = device_class
         self._display_precision = display_precision
