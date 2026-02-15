@@ -45,9 +45,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         PowerDcSensor(inverter_coordinator, ip_address, 1, 260),
         PowerDcSensor(inverter_coordinator, ip_address, 2, 270),
         PowerDcSensor(inverter_coordinator, ip_address, 3, 280),
-        VoltageDcSensor(inverter_coordinator, ip_address, 1, 266),
-        VoltageDcSensor(inverter_coordinator, ip_address, 2, 276),
-        VoltageDcSensor(inverter_coordinator, ip_address, 3, 286),
     ]
 
     # add sensors from registers
@@ -431,23 +428,6 @@ class PowerDcSensor(KostalFloat32Sensor):
             "mdi:flash",
             "power",
             "W",
-            0,
-        )
-
-
-class VoltageDcSensor(KostalFloat32Sensor):
-    """Voltage DC sensor."""
-
-    def __init__(self, coordinator, ip_address, dc_number, register_address):
-        super().__init__(
-            coordinator,
-            ip_address,
-            register_address,
-            f"voltage_dc_sensor_{dc_number}",
-            f"Voltage DC {dc_number}",
-            "mdi:sine-wave",
-            "voltage",
-            "V",
             0,
         )
 
