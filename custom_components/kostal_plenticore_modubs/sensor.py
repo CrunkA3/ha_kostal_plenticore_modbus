@@ -39,12 +39,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ControllerTemperatureSensor(inverter_coordinator, ip_address, 98),
         MaxChargePowerSensor(inverter_coordinator, ip_address, 1076),
         MaxDischargePowerSensor(inverter_coordinator, ip_address, 1078),
-        CurrentDcSensor(inverter_coordinator, ip_address, 1, 258),
-        CurrentDcSensor(inverter_coordinator, ip_address, 2, 268),
-        CurrentDcSensor(inverter_coordinator, ip_address, 3, 278),
-        PowerDcSensor(inverter_coordinator, ip_address, 1, 260),
-        PowerDcSensor(inverter_coordinator, ip_address, 2, 270),
-        PowerDcSensor(inverter_coordinator, ip_address, 3, 280),
     ]
 
     # add sensors from registers
@@ -392,40 +386,6 @@ class MaxDischargePowerSensor(KostalFloat32Sensor):
             "max_discharge_power_sensor",
             "Maximum Discharge Power",
             "mdi:battery-charging-10",
-            "power",
-            "W",
-            0,
-        )
-
-
-class CurrentDcSensor(KostalFloat32Sensor):
-    """Current DC sensor."""
-
-    def __init__(self, coordinator, ip_address, dc_number, register_address):
-        super().__init__(
-            coordinator,
-            ip_address,
-            register_address,
-            f"current_dc_sensor_{dc_number}",
-            f"Current DC {dc_number}",
-            "mdi:current-dc",
-            "current",
-            "A",
-            2,
-        )
-
-
-class PowerDcSensor(KostalFloat32Sensor):
-    """Power DC sensor."""
-
-    def __init__(self, coordinator, ip_address, dc_number, register_address):
-        super().__init__(
-            coordinator,
-            ip_address,
-            register_address,
-            f"power_dc_sensor_{dc_number}",
-            f"Power DC {dc_number}",
-            "mdi:flash",
             "power",
             "W",
             0,
