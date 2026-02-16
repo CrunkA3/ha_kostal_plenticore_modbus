@@ -22,7 +22,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, CONF_IP_ADDRESS, MANUFACTURER, MODEL, NAME
 
-from .register_info import REGISTERS
+from .register_info import REGISTERS, RegisterInfo
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -119,7 +119,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     InverterStateSensor(
                         inverter_coordinator,
                         ip_address,
-                        ri.address,
+                        ri,
                     )
                 )
 
@@ -394,7 +394,7 @@ class InverterStateSensor(CoordinatorEntity, SensorEntity):
         "Unknown",
     ]
 
-    def __init__(self, coordinator, ip_address, register_info):
+    def __init__(self, coordinator, ip_address, register_info: RegisterInfo):
         super().__init__(coordinator, context=0)
 
         self._ip_address = ip_address  # Initialize the IP address
