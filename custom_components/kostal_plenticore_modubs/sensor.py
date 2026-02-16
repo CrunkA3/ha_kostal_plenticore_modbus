@@ -219,6 +219,7 @@ class KostalFloat32Sensor(KostalSensor):
 
     @property
     def state(self):
+        """Return the state of the sensor."""
         return self.coordinator.read_float32(self._register_address)
 
 
@@ -253,6 +254,7 @@ class KostalInt16Sensor(KostalSensor):
 
     @property
     def state(self):
+        """Return the state of the sensor."""
         return self.coordinator.read_int16(self._register_address)
 
 
@@ -287,6 +289,7 @@ class KostalUInt16Sensor(KostalSensor):
 
     @property
     def state(self):
+        """Return the state of the sensor."""
         return self.coordinator.read_uint16(self._register_address)
 
 
@@ -321,6 +324,7 @@ class KostalInt32Sensor(KostalSensor):
 
     @property
     def state(self):
+        """Return the state of the sensor."""
         return self.coordinator.read_int32(self._register_address)
 
 
@@ -355,6 +359,7 @@ class KostalUInt32Sensor(KostalSensor):
 
     @property
     def state(self):
+        """Return the state of the sensor."""
         return self.coordinator.read_uint32(self._register_address)
 
 
