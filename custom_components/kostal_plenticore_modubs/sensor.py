@@ -34,12 +34,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     # add sensors
     inverter_coordinator = entry.runtime_data.inverter_coordinator
-    sensors = [
-        InverterStateSensor(inverter_coordinator, ip_address, 56),
-        ControllerTemperatureSensor(inverter_coordinator, ip_address, 98),
-        MaxChargePowerSensor(inverter_coordinator, ip_address, 1076),
-        MaxDischargePowerSensor(inverter_coordinator, ip_address, 1078),
-    ]
+    sensors = []
 
     # add sensors from registers
     for ri in REGISTERS:
@@ -117,6 +112,14 @@ async def async_setup_entry(hass, entry, async_add_entities):
                         ri.unit,
                         ri.display_precision,
                         ri.sensor_state_class,
+                    )
+                )
+            case "InverterState":
+                sensors.append(
+                    InverterStateSensor(
+                        inverter_coordinator,
+                        ip_address,
+                        ri.address,
                     )
                 )
 
@@ -363,57 +366,6 @@ class KostalUInt32Sensor(KostalSensor):
         return self.coordinator.read_uint32(self._register_address)
 
 
-class MaxChargePowerSensor(KostalFloat32Sensor):
-    """Battery Maximum charge power limit sensor."""
-
-    def __init__(self, coordinator, ip_address, register_address):
-        super().__init__(
-            coordinator,
-            ip_address,
-            register_address,
-            "max_charge_power_sensor",
-            "Maximum Charge Power",
-            "mdi:battery-charging-90",
-            "power",
-            "W",
-            0,
-        )
-
-
-class MaxDischargePowerSensor(KostalFloat32Sensor):
-    """Battery Maximum discharge power limit sensor."""
-
-    def __init__(self, coordinator, ip_address, register_address):
-        super().__init__(
-            coordinator,
-            ip_address,
-            register_address,
-            "max_discharge_power_sensor",
-            "Maximum Discharge Power",
-            "mdi:battery-charging-10",
-            "power",
-            "W",
-            0,
-        )
-
-
-class ControllerTemperatureSensor(KostalFloat32Sensor):
-    """Temperature of controller PCB sensor."""
-
-    def __init__(self, coordinator, ip_address, register_address):
-        super().__init__(
-            coordinator,
-            ip_address,
-            register_address,
-            "controller_temperature_sensor",
-            "Controller Temperature",
-            "mdi:thermometer",
-            "TEMPERATURE",
-            "°C",
-            1,
-        )
-
-
 class InverterStateSensor(CoordinatorEntity, SensorEntity):
     """Inverter State sensor."""
 
@@ -442,15 +394,17 @@ class InverterStateSensor(CoordinatorEntity, SensorEntity):
         "Unknown",
     ]
 
-    def __init__(self, coordinator, ip_address, register_address):
+    def __init__(self, coordinator, ip_address, register_info):
         super().__init__(coordinator, context=0)
 
         self._ip_address = ip_address  # Initialize the IP address
-        self._register_address = register_address
+        self._register_address = (
+            register_info.address
+        )  # Initialize the register address
         self._state = None
 
-        self._name = "Inverter State"
-        self._unique_id = f"inverter_state_sensor_{ip_address.replace('.', '_')}"
+        self._name = register_info.name
+        self._unique_id = register_info.unique_id
         self._device_id = f"{NAME}_{ip_address.replace('.', '_')}"
 
     @property
