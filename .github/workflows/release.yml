@@ -21,7 +21,7 @@ jobs:
         shell: "bash"
         run: |
           cd "${{ github.workspace }}"
-          zip eeve_mower_willow.zip -r ./
+          zip kostal_plenticore_modbus.zip -r ./
       - name: "Upload the ZIP file to the release"
         uses: "softprops/action-gh-release@v2.0.8"
         with:
