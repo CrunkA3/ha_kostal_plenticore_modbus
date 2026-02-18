@@ -80,7 +80,7 @@ class InverterCoordinator(DataUpdateCoordinator):
             self._ip_address, port=1502
         )  # IP-Adresse und Port des Inverters
 
-        data = {"inverter_state": 18, "registers": [0 for _ in range(1083)]}
+        data = {"inverter_state": 18, "registers": [0 for _ in range(40355)]}
 
         async def read_holding_registers(address, count):
             result = await client.read_holding_registers(
@@ -115,6 +115,11 @@ class InverterCoordinator(DataUpdateCoordinator):
 
                 # read Registers (Battery max. charge/discharge power limit and Minimum/Maximum SOC)
                 await read_holding_registers(1030, 53)
+
+                # total real energy exported/imported
+                await read_holding_registers(40346, 2)
+                await read_holding_registers(40354, 2)
+
 
                 # Inverter State
                 result = await client.read_holding_registers(56, count=2, device_id=71)
@@ -250,7 +255,7 @@ class InverterCoordinator(DataUpdateCoordinator):
         :rtype: int
         """
         return AsyncModbusTcpClient.convert_from_registers(
-            registers=list(self.data["registers"][address : address + 2]),
+            registers=list(reversed(self.data["registers"][address : address + 2])),
             data_type=AsyncModbusTcpClient.DATATYPE.INT32,
         )
 
@@ -264,6 +269,6 @@ class InverterCoordinator(DataUpdateCoordinator):
         :rtype: int
         """
         return AsyncModbusTcpClient.convert_from_registers(
-            registers=list(self.data["registers"][address : address + 2]),
+            registers=list(reversed(self.data["registers"][address : address + 2])),
             data_type=AsyncModbusTcpClient.DATATYPE.UINT32,
         )
