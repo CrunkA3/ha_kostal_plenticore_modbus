@@ -1,4 +1,9 @@
 # Kostal Plenticore Modbus Integration for Home Assistant
+
+![hacs-validate](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/hacs-validate.yml/badge.svg)
+![HACS Action](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/validate.yml/badge.svg)
+![Release](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/release.yml/badge.svg)
+
 <img alt="screenshot of integration" src="https://github.com/CrunkA3/ha_kostal_plenticore_modbus/blob/main/assets/Example.png" />
 
 ## Installation
