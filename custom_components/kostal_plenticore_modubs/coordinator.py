@@ -158,9 +158,9 @@ class InverterCoordinator(DataUpdateCoordinator):
                     value=value, data_type=client.DATATYPE.FLOAT32
                 )
                 result = await client.write_registers(
-                    1042, values=list(reversed(registers)), slave=71
+                    1042, values=list(reversed(registers)), device_id=71
                 )
-                if not result.isError():
+                if result.isError():
                     _LOGGER.error("Error writing registers")
 
             else:
@@ -186,9 +186,9 @@ class InverterCoordinator(DataUpdateCoordinator):
                     value=value, data_type=client.DATATYPE.FLOAT32
                 )
                 result = await client.write_registers(
-                    address, values=list(reversed(registers)), slave=71
+                    address, values=list(reversed(registers)), device_id=71
                 )
-                if not result.isError():
+                if result.isError():
                     _LOGGER.error("Error writing registers")
 
             else:
