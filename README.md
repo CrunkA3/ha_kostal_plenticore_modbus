@@ -3,6 +3,7 @@
 [![CodeQL](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/github-code-scanning/codeql)
 [![HACS Action](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/validate.yml/badge.svg)](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/validate.yml)
 [![hacs-validate](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/hacs-validate.yml/badge.svg)](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/hacs-validate.yml)
+[![Copilot](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/agents/copilot-pull-request-reviewer/badge.svg)](https://github.com/CrunkA3/ha_kostal_plenticore_modbus/actions/workflows/agents/copilot-pull-request-reviewer)
 
 <img alt="screenshot of integration" src="https://github.com/CrunkA3/ha_kostal_plenticore_modbus/blob/main/assets/Example.png" />
 
