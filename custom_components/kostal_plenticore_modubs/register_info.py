@@ -6,7 +6,7 @@ from homeassistant.components.sensor import (
 class RegisterInfo():
     """Register Information"""
 
-    def __init__(self, address, unique_id, name, unit, type, icon, device_class, display_precision, access = "RO", sensor_state_class = SensorStateClass.MEASUREMENT):
+    def __init__(self, address, unique_id, name, unit, type, icon, device_class, display_precision, sensor_state_class = SensorStateClass.MEASUREMENT, access = "RO"):
         """
         Initialize a new RegisterInfo object.
 
@@ -19,7 +19,8 @@ class RegisterInfo():
             icon (str): data type
             device_class (str): data type
             display_precision (str): Display precision
-            access (int, optional): Acces mode
+            sensor_state_class (SensorStateClass, optional): Home Assistant sensor state class
+            access (str, optional): Access mode (e.g. "RO", "RW")
         """
         self._address = address
         self._unique_id = unique_id
@@ -133,7 +134,8 @@ REGISTERS: list[RegisterInfo] = [
     RegisterInfo(1025, "power_scale_factor", "Power Scale Factor", None, "S16", "mdi:function-variant", None, 0),
     RegisterInfo(1068, "battery_work_capacity_sensor", "Battery work capacity", "Wh", "Float", "mdi:battery", "energy_storage", 0),
     RegisterInfo(1076, "max_charge_power_sensor", "Maximum Charge Power", "W", "Float", "mdi:battery-charging-90", "power", 0),
-    RegisterInfo(1078, "max_discharge_power_sensor", "Maximum Discharge Power", "W", "Float", "mdi:battery-charging-10", "power", 0),RegisterInfo(1046, "total_dc_charge_energy_dc_to_battery", "Total DC charge energy (DC-side to battery)", "Wh", "Float", "mdi:flash", "energy", 0),
+    RegisterInfo(1078, "max_discharge_power_sensor", "Maximum Discharge Power", "W", "Float", "mdi:battery-charging-10", "power", 0),
+    RegisterInfo(1046, "total_dc_charge_energy_dc_to_battery", "Total DC charge energy (DC-side to battery)", "Wh", "Float", "mdi:flash", "energy", 0),
     RegisterInfo(1048, "total_dc_discharge_energy_dc_from_battery", "Total DC discharge energy (DC-side from battery)", "Wh", "Float", "mdi:flash", "energy", 0),
     RegisterInfo(1050, "total_ac_charge_energy_ac_to_battery", "Total AC charge energy (AC-side to battery)", "Wh", "Float", "mdi:flash", "energy", 0),
     RegisterInfo(1052, "total_ac_discharge_energy_battery_to_grid", "Total AC discharge energy (battery to grid)", "Wh", "Float", "mdi:flash", "energy", 0),
