@@ -19,8 +19,8 @@ class RegisterInfo():
             icon (str): data type
             device_class (str): data type
             display_precision (str): Display precision
-            sensor_state_class (SensorStateClass): SensorStateClass
-            access (int, optional): Acces mode
+            sensor_state_class (SensorStateClass, optional): Home Assistant sensor state class
+            access (str, optional): Access mode (e.g. "RO", "RW")
         """
         self._address = address
         self._unique_id = unique_id
