@@ -150,6 +150,7 @@ class KostalSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator, context=0)
 
         self._register_address = register_address
+        self._last_valid_state = None
 
         self._name = name
         self._unique_id = f"{unique_id}_{ip_address.replace('.', '_')}"
@@ -190,6 +191,14 @@ class KostalSensor(CoordinatorEntity, SensorEntity):
         """Synchronize state"""
         await self.coordinator.async_request_refresh()
 
+    def _filtered_state(self, state):
+        """Return the last valid state when a cumulative register briefly reports zero."""
+        if self._attr_state_class == SensorStateClass.TOTAL_INCREASING and state == 0 and self._last_valid_state:
+            return self._last_valid_state
+
+        self._last_valid_state = state
+        return state
+
 
 class KostalFloat32Sensor(KostalSensor):
     """Kostal FLOAT32 sensor."""
@@ -223,7 +232,7 @@ class KostalFloat32Sensor(KostalSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.coordinator.read_float32(self._register_address)
+        return self._filtered_state(self.coordinator.read_float32(self._register_address))
 
 
 class KostalInt16Sensor(KostalSensor):
@@ -258,7 +267,7 @@ class KostalInt16Sensor(KostalSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.coordinator.read_int16(self._register_address)
+        return self._filtered_state(self.coordinator.read_int16(self._register_address))
 
 
 class KostalUInt16Sensor(KostalSensor):
@@ -293,7 +302,7 @@ class KostalUInt16Sensor(KostalSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.coordinator.read_uint16(self._register_address)
+        return self._filtered_state(self.coordinator.read_uint16(self._register_address))
 
 
 class KostalInt32Sensor(KostalSensor):
@@ -328,7 +337,7 @@ class KostalInt32Sensor(KostalSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.coordinator.read_int32(self._register_address)
+        return self._filtered_state(self.coordinator.read_int32(self._register_address))
 
 
 class KostalUInt32Sensor(KostalSensor):
@@ -363,7 +372,7 @@ class KostalUInt32Sensor(KostalSensor):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.coordinator.read_uint32(self._register_address)
+        return self._filtered_state(self.coordinator.read_uint32(self._register_address))
 
 
 class InverterStateSensor(CoordinatorEntity, SensorEntity):
